@@ -2,5 +2,5 @@
 # functions and structures by reflection: keep both.
 -keep class com.sun.jna.** { *; }
 -keep class * implements com.sun.jna.** { *; }
--keep class io.github.artcraftandroid.filmcraft.core.** { *; }
+-keep class com.shawnstudio.shawncut.core.** { *; }
 -dontwarn java.awt.**

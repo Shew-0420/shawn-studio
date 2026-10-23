@@ -90,7 +90,7 @@ jobs:
         run: |
           ./gradlew assembleRelease "-Pfilmcraft.abis=arm64-v8a" "-Pfilmcraft.version=$VERSION" --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/dist"
-          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/filmcraft-android-$VERSION.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/shawn-cut-$VERSION.apk"
 
       - name: APK
         run: |

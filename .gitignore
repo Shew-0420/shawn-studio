@@ -5,3 +5,5 @@
 .DS_Store
 .claude/
 local.properties
+/.codebase-memory/
+/artifacts/
