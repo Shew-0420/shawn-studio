@@ -25,6 +25,7 @@ import com.shawnstudio.shawncut.ui.editor.EditorController
 import com.shawnstudio.shawncut.ui.editor.EditorHost
 import com.shawnstudio.shawncut.ui.editor.PickKind
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -34,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** The screens. */
-enum class Screen { Home, Editor, Export, Settings, About, Licences }
+enum class Screen { Home, Edit, Editor, Export, Settings, About, Licences }
 
 /** How a new project starts. */
 enum class NewProject { PhotoLibrary, Files, Blank, ExtractAudio }
@@ -132,6 +133,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
         screen = s
     }
 
+    fun edit() {
+        if (editor != null) screen = Screen.Editor
+        else newProject(NewProject.PhotoLibrary)
+    }
+
     fun back() {
         screen = when (screen) {
             Screen.About -> Screen.Settings
@@ -156,10 +162,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
             NewProject.PhotoLibrary, NewProject.Files -> pick(if (how == NewProject.PhotoLibrary) PickKind.PhotosAndVideos else PickKind.FilesVisual) { uris ->
                 if (uris.isEmpty()) return@pick
                 viewModelScope.launch {
-                    val (w, h) = withContext(Dispatchers.IO) { frameFor(uris.first()) }
-                    val p = withContext(Dispatchers.IO) { projects.create(projects.todaysName(), w, h) }
-                    open(e, p, fresh = true)
-                    editor?.importAndAdd(uris, audio = false, first = true)
+                    try {
+                        val (w, h) = withContext(Dispatchers.IO) { frameFor(uris.first()) }
+                        val p = withContext(Dispatchers.IO) { projects.create(projects.todaysName(), w, h) }
+                        open(e, p, fresh = true)
+                        editor?.importAndAdd(uris, audio = false, first = true)
+                    } catch (ex: CancellationException) {
+                        throw ex
+                    } catch (ex: Exception) {
+                        tell(ex.userMessage)
+                    }
                 }
             }
             NewProject.ExtractAudio -> pick(PickKind.ExtractAudioVideo) { uris ->

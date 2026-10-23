@@ -103,6 +103,8 @@ fun HomeScreen(vm: AppViewModel) {
                     items(vm.projectList, key = { it.id }) { p -> ProjectCard(vm, p) }
                 }
                 Spacer(Modifier.height(32.dp))
+            } else {
+                Text("No projects yet. Start one above.", style = FcType.Body, color = Fc.Secondary, modifier = Modifier.padding(horizontal = 16.dp).testTag("home_projects_empty"))
             }
             vm.engineProblem?.let {
                 Text("The editor couldn't start: $it", style = FcType.Body, color = Fc.Negative, modifier = Modifier.padding(16.dp))
