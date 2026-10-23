@@ -58,7 +58,7 @@ import com.shawnstudio.shawncut.ui.glyph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private const val SOURCE_URL = "https://github.com/storytold/filmcraft"
+private const val SOURCE_URL = "https://github.com/Shew-0420/shawn-studio"
 
 @Composable
 private fun Page(title: String, onClose: () -> Unit, tag: String, content: @Composable () -> Unit) {
