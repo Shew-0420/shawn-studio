@@ -22,7 +22,7 @@ val Inter = FontFamily(
 )
 
 /**
- * FilmCraft's colours. The app is always dark: black screens, dark grey panels, a blue accent,
+ * FilmCraft's colours. The app is always dark: black screens, dark grey panels, a violet accent,
  * the timeline's clips coloured by kind.
  */
 object Fc {
@@ -53,7 +53,7 @@ object Fc {
     val Icon = Color(0xFFDBDBDB)
 
     // accent
-    val Accent = Color(0xFF4069FD)
+    val Accent = Color(0xFF8B5CF6)
     val AccentLight = Color(0xFF5681FF)
     val Negative = Color(0xFFFC432E)
     val Recording = Color(0xFFF83A2B)

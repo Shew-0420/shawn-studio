@@ -284,13 +284,19 @@ androidComponents {
         val assetsDir = File(cargoWorkspaceDir, "assets")
         val res = tasks.register<FilmcraftAssets>("filmcraftResources$name") {
             val map = mapOf(
-                "app-icon/hicolor/512x512/apps/ai.storyteller.filmcraft.png" to "drawable-nodpi/ic_launcher_tile.png",
                 "fonts/Inter-Regular.ttf" to "font/inter_regular.ttf",
                 "fonts/Inter-Medium.ttf" to "font/inter_medium.ttf",
                 "fonts/Inter-SemiBold.ttf" to "font/inter_semibold.ttf",
             )
             files.from(map.keys.map { File(assetsDir, it) })
-            targets.set(map.mapKeys { (k, _) -> k.substringAfterLast('/') })
+            files.from(
+                File(projectDir, "src/main/branding/shawn_cut_app_icon.png"),
+                File(projectDir, "src/main/branding/shawn_cut_brand_mark.png"),
+            )
+            targets.set(map.mapKeys { (k, _) -> k.substringAfterLast('/') } + mapOf(
+                "shawn_cut_app_icon.png" to "drawable-nodpi/ic_launcher_tile.png",
+                "shawn_cut_brand_mark.png" to "drawable-nodpi/shawn_cut_brand_mark.png",
+            ))
         }
         val licences = tasks.register<FilmcraftAssets>("filmcraftLicences$name") {
             files.from(File(assetsDir, "fonts/OFL-Inter.txt"), File(assetsDir, "icons/LICENSE-lucide.txt"))
