@@ -12,7 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.shawnstudio.shawncut.AppLocale
 import com.shawnstudio.shawncut.FilmcraftApplication
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.core.ExportQuality
 import com.shawnstudio.shawncut.core.ExportSettings
 import com.shawnstudio.shawncut.core.frameSizeFor
@@ -106,7 +108,48 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
     // ---- EditorHost ----
 
     override fun tell(message: String) {
-        messages.trySend(message)
+        messages.trySend(localizedMessage(message))
+    }
+
+    override fun text(id: Int, vararg args: Any) = AppLocale.text(getApplication(), id, *args)
+
+    private fun localizedMessage(message: String): String {
+        val id = when (message) {
+            "That clip is no longer on the timeline." -> R.string.error_clip_no_longer_timeline
+            "This clip has no sound." -> R.string.error_clip_no_sound
+            "Move the playhead into the clip to split it." -> R.string.error_playhead_inside_clip
+            "The new video is shorter than the clip. Choose a longer video or trim the clip first." -> R.string.error_video_shorter_than_clip
+            "Speed must be a number." -> R.string.error_speed_must_be_number
+            "Move the playhead into the clip to freeze a frame." -> R.string.error_playhead_freeze_frame
+            "Only a video's sound can be extracted." -> R.string.error_extract_video_audio_only
+            "Only pictures and videos take this." -> R.string.error_only_pictures_videos
+            "That transition is gone." -> R.string.error_transition_gone
+            "Only main-track clips are reordered." -> R.string.error_reorder_main_track_only
+            "Main-track clips are reordered instead." -> R.string.error_reorder_main_track_instead
+            "Add something to the timeline before exporting." -> R.string.error_add_to_timeline_before_export
+            "The export did not start." -> R.string.error_export_not_started
+            "That export is gone." -> R.string.error_export_gone
+            "The file holds no media.", "the file holds no media" -> R.string.error_file_holds_no_media
+            "Those captions are gone." -> R.string.error_captions_gone
+            "That clip has no picture." -> R.string.error_clip_no_picture
+            "The placement must be numbers." -> R.string.error_placement_must_be_numbers
+            "That text is gone." -> R.string.error_text_gone
+            "That clip has no text." -> R.string.error_clip_no_text
+            "That picture could not be drawn." -> R.string.error_picture_could_not_draw
+            "The speech wasn't added." -> R.string.error_speech_not_added
+            "The speech wasn't changed." -> R.string.error_speech_not_changed
+            "That clip is gone." -> R.string.error_clip_gone
+            "no transition slot" -> R.string.error_no_transition_slot
+            "There's no sound to make captions from." -> R.string.error_there_is_no_sound_for_captions
+            "There is nothing to say." -> R.string.error_nothing_to_add
+            "no sequence is open" -> R.string.error_no_sequence_open
+            "The speech model isn't downloaded." -> R.string.error_speech_model_not_downloaded
+            "The app has no folder for speech models." -> R.string.error_speech_models_folder_missing
+            "Making captions failed." -> R.string.error_caption_generation_failed
+            "Something went wrong." -> R.string.error_operation_failed
+            else -> return message
+        }
+        return text(id)
     }
 
     override fun pick(kind: PickKind, onPicked: (List<Uri>) -> Unit) {
@@ -152,7 +195,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
 
     /** Start a project the way a Home tile (or the + button) says. */
     fun newProject(how: NewProject) {
-        val e = engine ?: return tell(engineProblem ?: "The editor is still starting.")
+        val e = engine ?: return tell(engineProblem ?: text(R.string.error_editor_starting))
         when (how) {
             NewProject.Blank -> viewModelScope.launch {
                 val (w, h) = 1080 to 1920
@@ -224,7 +267,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
     }
 
     fun openProject(p: ProjectEntry) {
-        val e = engine ?: return tell(engineProblem ?: "The editor is still starting.")
+        val e = engine ?: return tell(engineProblem ?: text(R.string.error_editor_starting))
         viewModelScope.launch { open(e, p, fresh = false) }
     }
 
@@ -288,7 +331,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
         val dir = File(ctx.cacheDir, "export").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
         if (plan != null && dir.usableSpace < plan.estimatedBytes.toLong() * 3 / 2 + 50L * 1024 * 1024) {
-            tell("There isn't enough space on the phone for this video. Free some space or lower the resolution or quality.")
+            tell(text(R.string.error_not_enough_export_space))
             return
         }
         // the project's name, with only the characters a file name can't hold replaced
@@ -305,7 +348,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
                     if (st.finished) {
                         if (st.error != null) {
                             out.delete()
-                            exportPhase = if (st.error == "cancelled") ExportPhase.Settings else ExportPhase.Failed(st.error ?: "The export failed.")
+                            exportPhase = if (st.error == "cancelled") ExportPhase.Settings else ExportPhase.Failed(localizedMessage(st.error ?: text(R.string.error_operation_failed)))
                         } else {
                             val uri = withContext(Dispatchers.IO) { saveToMovies(out, name) }
                             exportPhase = ExportPhase.Done(uri, out.absolutePath)
@@ -318,7 +361,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
                 }
             } catch (e: Exception) {
                 out.delete()
-                exportPhase = ExportPhase.Failed(e.userMessage)
+                exportPhase = ExportPhase.Failed(localizedMessage(e.userMessage))
             } finally {
                 exportEngineJob = null
                 // the export's frame buffers are kept for another export; give them back now
@@ -344,9 +387,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
             put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES)
             put(MediaStore.Video.Media.IS_PENDING, 1)
         }
-        val uri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: throw java.io.IOException("The video couldn't be saved to the phone.")
+        val uri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: throw java.io.IOException(text(R.string.error_video_could_not_be_saved))
         try {
-            resolver.openOutputStream(uri)?.use { o -> file.inputStream().use { it.copyTo(o) } } ?: throw java.io.IOException("The video couldn't be saved to the phone.")
+            resolver.openOutputStream(uri)?.use { o -> file.inputStream().use { it.copyTo(o) } } ?: throw java.io.IOException(text(R.string.error_video_could_not_be_saved))
             resolver.update(uri, ContentValues().apply { put(MediaStore.Video.Media.IS_PENDING, 0) }, null, null)
         } catch (e: Exception) {
             resolver.delete(uri, null, null)
@@ -363,7 +406,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
             return
         }
         viewModelScope.launch {
-            val e = getApplication<FilmcraftApplication>().engine.await().getOrNull() ?: return@launch tell(engineProblem ?: "The editor couldn't start.")
+            val e = getApplication<FilmcraftApplication>().engine.await().getOrNull() ?: return@launch tell(engineProblem ?: text(R.string.error_editor_could_not_start))
             val (w, h) = withContext(Dispatchers.IO) { frameFor(uris.first()) }
             val p = withContext(Dispatchers.IO) { projects.create(projects.todaysName(), w, h) }
             open(e, p, fresh = true)

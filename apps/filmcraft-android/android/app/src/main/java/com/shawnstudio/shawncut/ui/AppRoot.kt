@@ -23,7 +23,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.ui.editor.EditorScreen
 import com.shawnstudio.shawncut.ui.export.ExportScreen
 import com.shawnstudio.shawncut.ui.home.AboutScreen
@@ -74,18 +76,19 @@ fun AppRoot(vm: AppViewModel) {
 private fun MainNavigationBar(vm: AppViewModel) {
     NavigationBar(containerColor = Fc.Panel, contentColor = Fc.Title) {
         listOf(
-            Triple(Screen.Home, "Home", LucideIcons.House.glyph()),
-            Triple(Screen.Edit, "Edit", LucideIcons.Scissors.glyph()),
-            Triple(Screen.Settings, "Settings", LucideIcons.Settings.glyph()),
+            Triple(Screen.Home, R.string.nav_home, LucideIcons.House.glyph()),
+            Triple(Screen.Edit, R.string.nav_edit, LucideIcons.Scissors.glyph()),
+            Triple(Screen.Settings, R.string.nav_settings, LucideIcons.Settings.glyph()),
         ).forEach { (screen, label, icon) ->
+            val labelText = stringResource(label)
             NavigationBarItem(
                 selected = vm.screen == screen,
                 onClick = {
                     if (screen == Screen.Edit) vm.edit()
                     else vm.show(screen)
                 },
-                icon = { GlyphIcon(icon, if (vm.screen == screen) Fc.Accent else Fc.Detail, description = label) },
-                label = { Text(label, style = FcType.ToolLabel) },
+                icon = { GlyphIcon(icon, if (vm.screen == screen) Fc.Accent else Fc.Detail, description = labelText) },
+                label = { Text(labelText, style = FcType.ToolLabel) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Fc.Accent,
                     selectedTextColor = Fc.Title,

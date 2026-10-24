@@ -36,11 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.ui.Fc
 import com.shawnstudio.shawncut.ui.FcSize
 import com.shawnstudio.shawncut.ui.FcType
@@ -132,6 +134,13 @@ class VoiceRecorder(val file: File) {
 @Composable
 fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
+    val microphoneUnavailable = stringResource(R.string.panel_microphone_unavailable)
+    val voiceoverLabel = stringResource(R.string.panel_voiceover)
+    val discardLabel = stringResource(R.string.panel_discard_recording)
+    val countdownLabel = stringResource(R.string.panel_countdown)
+    val stopRecordingLabel = stringResource(R.string.panel_stop_recording)
+    val cancelCountdownLabel = stringResource(R.string.panel_cancel_countdown)
+    val recordLabel = stringResource(R.string.panel_record)
     var countdown by remember { mutableStateOf(true) }
     var counting by remember { mutableIntStateOf(0) }
     var recorder by remember { mutableStateOf<VoiceRecorder?>(null) }
@@ -139,7 +148,14 @@ fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier =
     var elapsed by remember { mutableLongStateOf(0L) }
     var job by remember { mutableStateOf<Job?>(null) }
     val takes = remember { mutableListOf<ULong>() }
-    DisposableEffect(Unit) { onDispose { recorder?.stop() } }
+    DisposableEffect(Unit) {
+        onDispose {
+            recorder?.let {
+                it.stop()
+                ed.finishVoiceover(it) {}
+            }
+        }
+    }
     fun stop() {
         val r = recorder ?: return
         recorder = null
@@ -159,7 +175,7 @@ fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier =
                 }
                 val r = ed.newVoiceRecorder() ?: return@launch
                 if (!r.start()) {
-                    ed.tellUser("The microphone can't be used right now.")
+                    ed.tellUser(microphoneUnavailable)
                     return@launch
                 }
                 recorder = r
@@ -172,9 +188,9 @@ fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier =
         }
     }
     ToolPanel(
-        "Voiceover", { if (recorder == null) close() }, modifier, tag = "voiceover_panel",
+        voiceoverLabel, { if (recorder == null) close() }, modifier, tag = "voiceover_panel",
         actions = {
-            PanelAction(LucideIcons.Trash2.glyph(), "Discard recording", {
+            PanelAction(LucideIcons.Trash2.glyph(), discardLabel, {
                 val ids = takes.toList()
                 takes.clear()
                 ed.discardTakes(ids)
@@ -202,7 +218,7 @@ fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier =
                         onCheckedChange = { countdown = it },
                         enabled = recorder == null && counting == 0,
                         colors = SwitchDefaults.colors(checkedTrackColor = Fc.Accent, checkedThumbColor = Color.White, uncheckedTrackColor = Fc.Chip, uncheckedThumbColor = Fc.Detail),
-                        modifier = Modifier.semantics { contentDescription = "Countdown" },
+                        modifier = Modifier.semantics { contentDescription = countdownLabel },
                     )
                 }
                 val recording = recorder != null
@@ -219,7 +235,7 @@ fun VoiceoverPanel(ed: EditorController, close: () -> Unit, modifier: Modifier =
                             }
                         }
                         .testTag("voiceover_record")
-                        .semantics { contentDescription = if (recording) "Stop recording" else if (counting > 0) "Cancel countdown" else "Record" },
+                        .semantics { contentDescription = if (recording) stopRecordingLabel else if (counting > 0) cancelCountdownLabel else recordLabel },
                     contentAlignment = Alignment.Center,
                 ) {
                     GlyphIcon(if (recording) Glyphs.Stop else Glyphs.Record, if (recording) Color.White else Fc.Recording, size = 40.dp)

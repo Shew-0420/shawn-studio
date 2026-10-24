@@ -70,7 +70,9 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -79,6 +81,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shawnstudio.shawncut.core.ClipKind
 import com.shawnstudio.shawncut.core.Placement
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.ui.Fc
 import com.shawnstudio.shawncut.ui.FcIconButton
 import com.shawnstudio.shawncut.ui.FcSize
@@ -174,6 +177,7 @@ private fun Stacked(ed: EditorController) {
 
 @Composable
 private fun SideBySide(ed: EditorController) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     val panel = ed.panel
     val textInput = panel as? Panel.TextInput
@@ -191,9 +195,9 @@ private fun SideBySide(ed: EditorController) {
         Row(Modifier.fillMaxSize()) {
             // transport rail
             Column(Modifier.width(48.dp).fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                FcIconButton(Glyphs.StepBack, "Previous frame", { ed.step(-1) }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_previous_frame_button"))
-                FcIconButton(if (ed.playing) Glyphs.Pause else Glyphs.Play, if (ed.playing) "Pause" else "Play", { ed.togglePlay() }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_play_button"))
-                FcIconButton(Glyphs.StepForward, "Next frame", { ed.step(1) }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_next_frame_button"))
+                FcIconButton(Glyphs.StepBack, stringResource(R.string.editor_previous_frame), { ed.step(-1) }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_previous_frame_button"))
+                FcIconButton(if (ed.playing) Glyphs.Pause else Glyphs.Play, stringResource(if (ed.playing) R.string.editor_pause else R.string.editor_play), { ed.togglePlay() }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_play_button"))
+                FcIconButton(Glyphs.StepForward, stringResource(R.string.editor_next_frame), { ed.step(1) }, size = 40.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_next_frame_button"))
             }
             Preview(ed, Modifier.width(playerW).fillMaxHeight())
             // the divider between the monitor and the timeline
@@ -209,7 +213,7 @@ private fun SideBySide(ed: EditorController) {
                         }
                     }
                     .testTag("editor_side_by_side_divider")
-                    .semantics { contentDescription = "Resize monitor" },
+                    .semantics { contentDescription = context.getString(R.string.editor_resize_monitor) },
                 contentAlignment = Alignment.Center,
             ) {
                 Box(Modifier.size(width = 4.dp, height = 32.dp).clip(CircleShape).background(Fc.Detail))
@@ -236,12 +240,12 @@ private fun SideBySide(ed: EditorController) {
 @Composable
 private fun TopBar(ed: EditorController, sideBySide: Boolean) {
     Row(Modifier.fillMaxWidth().height(FcSize.TopBar).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        FcIconButton(LucideIcons.House.glyph(), "Home", { ed.closeEditor() }, modifier = Modifier.testTag("editor_home_button"))
+        FcIconButton(LucideIcons.House.glyph(), stringResource(R.string.editor_home), { ed.closeEditor() }, modifier = Modifier.testTag("editor_home_button"))
         Spacer(Modifier.weight(1f))
         if (sideBySide) {
             val st = ed.status
-            FcIconButton(LucideIcons.Undo2.glyph(), "Undo", { ed.undo() }, enabled = st?.canUndo == true, modifier = Modifier.testTag("editor_top_bar_undo_button"))
-            FcIconButton(LucideIcons.Redo2.glyph(), "Redo", { ed.redo() }, enabled = st?.canRedo == true, modifier = Modifier.testTag("editor_top_bar_redo_button"))
+            FcIconButton(LucideIcons.Undo2.glyph(), stringResource(R.string.editor_undo), { ed.undo() }, enabled = st?.canUndo == true, modifier = Modifier.testTag("editor_top_bar_undo_button"))
+            FcIconButton(LucideIcons.Redo2.glyph(), stringResource(R.string.editor_redo), { ed.redo() }, enabled = st?.canRedo == true, modifier = Modifier.testTag("editor_top_bar_redo_button"))
             Spacer(Modifier.width(8.dp))
         }
         Box(
@@ -253,13 +257,14 @@ private fun TopBar(ed: EditorController, sideBySide: Boolean) {
                 .padding(horizontal = 14.dp, vertical = 6.dp)
                 .testTag("editor_export_button"),
         ) {
-            Text("Export", style = FcType.Button, color = Color.Black)
+            Text(stringResource(R.string.export_title), style = FcType.Button, color = Color.Black)
         }
     }
 }
 
 @Composable
 private fun TransportRow(ed: EditorController, onResize: (Float) -> Unit) {
+    val context = LocalContext.current
     val st = ed.status
     Row(Modifier.fillMaxWidth().height(FcSize.Transport).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -267,19 +272,19 @@ private fun TransportRow(ed: EditorController, onResize: (Float) -> Unit) {
                 .size(48.dp)
                 .pointerInput(Unit) { detectVerticalDragGestures { change, dy -> change.consume(); onResize(dy) } }
                 .testTag("editor_resize_player_button")
-                .semantics { contentDescription = "Resize player" },
+                .semantics { contentDescription = context.getString(R.string.editor_resize_player) },
             contentAlignment = Alignment.Center,
         ) {
             com.shawnstudio.shawncut.ui.GlyphIcon(LucideIcons.ChevronsUpDown.glyph(), Fc.Icon, size = 22.dp)
         }
         Spacer(Modifier.weight(1f))
         val has = (ed.timeline?.duration ?: 0L) > 0L
-        FcIconButton(Glyphs.StepBack, "Previous frame", { ed.step(-1) }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_previous_frame_button"))
-        FcIconButton(if (ed.playing) Glyphs.Pause else Glyphs.Play, if (ed.playing) "Pause" else "Play", { ed.togglePlay() }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_play_button"))
-        FcIconButton(Glyphs.StepForward, "Next frame", { ed.step(1) }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_next_frame_button"))
+        FcIconButton(Glyphs.StepBack, stringResource(R.string.editor_previous_frame), { ed.step(-1) }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_previous_frame_button"))
+        FcIconButton(if (ed.playing) Glyphs.Pause else Glyphs.Play, stringResource(if (ed.playing) R.string.editor_pause else R.string.editor_play), { ed.togglePlay() }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_play_button"))
+        FcIconButton(Glyphs.StepForward, stringResource(R.string.editor_next_frame), { ed.step(1) }, enabled = has, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_next_frame_button"))
         Spacer(Modifier.weight(1f))
-        FcIconButton(LucideIcons.Undo2.glyph(), "Undo", { ed.undo() }, enabled = st?.canUndo == true, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_undo_button"))
-        FcIconButton(LucideIcons.Redo2.glyph(), "Redo", { ed.redo() }, enabled = st?.canRedo == true, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_redo_button"))
+        FcIconButton(LucideIcons.Undo2.glyph(), stringResource(R.string.editor_undo), { ed.undo() }, enabled = st?.canUndo == true, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_undo_button"))
+        FcIconButton(LucideIcons.Redo2.glyph(), stringResource(R.string.editor_redo), { ed.redo() }, enabled = st?.canRedo == true, size = 36.dp, iconSize = 22.dp, modifier = Modifier.testTag("editor_redo_button"))
         Spacer(Modifier.width(4.dp))
     }
 }
@@ -287,6 +292,7 @@ private fun TransportRow(ed: EditorController, onResize: (Float) -> Unit) {
 /** The program monitor: the picture at the playhead, and the selected item's frame to move it by. */
 @Composable
 private fun Preview(ed: EditorController, modifier: Modifier) {
+    val context = LocalContext.current
     val t = ed.timeline
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
@@ -354,7 +360,7 @@ private fun Preview(ed: EditorController, modifier: Modifier) {
                         if (!moved) ed.togglePlay()
                     }
                 }
-                .semantics { contentDescription = "Preview" },
+                .semantics { contentDescription = context.getString(R.string.editor_preview) },
         ) {
             ed.picture?.let { Image(it, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
             // the text being typed, where the new clip will put it

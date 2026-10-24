@@ -23,12 +23,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.shawnstudio.shawncut.core.ClipInfo
 import com.shawnstudio.shawncut.core.ClipKind
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.ui.Fc
 import com.shawnstudio.shawncut.ui.FcSize
 import com.shawnstudio.shawncut.ui.Glyph
@@ -39,7 +42,7 @@ import com.shawnstudio.shawncut.ui.ToolTile
 import com.shawnstudio.shawncut.ui.glyph
 
 /** One tool on the bar. */
-data class Tool(val tag: String, val label: String, val glyph: Glyph, val enabled: Boolean = true, val active: Boolean = false, val onClick: () -> Unit)
+data class Tool(val tag: String, val label: Int, val glyph: Glyph, val enabled: Boolean = true, val active: Boolean = false, val onClick: () -> Unit)
 
 /**
  * The tool bar under the timeline: what can be added when nothing is selected, the selected
@@ -64,6 +67,7 @@ fun EditorToolbar(ed: EditorController, modifier: Modifier = Modifier) {
 
 @Composable
 private fun ToolRow(tools: List<Tool>, back: (() -> Unit)?, deep: Boolean, modifier: Modifier) {
+    val context = LocalContext.current
     BoxWithConstraints(modifier.fillMaxWidth().height(FcSize.ToolTile)) {
         // with a back button the tools start clear of it and centre in what is left
         val start = if (back != null) 43.5.dp else 0.dp
@@ -76,7 +80,7 @@ private fun ToolRow(tools: List<Tool>, back: (() -> Unit)?, deep: Boolean, modif
                 .padding(start = start, end = end),
             horizontalArrangement = if (fits) Arrangement.Center else Arrangement.Start,
         ) {
-            for (t in tools) ToolTile(t.glyph, t.label, t.onClick, enabled = t.enabled, active = t.active, tag = t.tag)
+            for (t in tools) ToolTile(t.glyph, stringResource(t.label), t.onClick, enabled = t.enabled, active = t.active, tag = t.tag)
         }
         if (back != null) {
             Box(
@@ -96,7 +100,7 @@ private fun ToolRow(tools: List<Tool>, back: (() -> Unit)?, deep: Boolean, modif
                     .background(Fc.Raised)
                     .clickable(role = Role.Button, onClick = back)
                     .testTag("editor_toolbar_back")
-                    .semantics { contentDescription = "Back" },
+                    .semantics { contentDescription = context.getString(R.string.accessibility_back) },
                 contentAlignment = Alignment.Center,
             ) {
                 GlyphIcon((if (deep) LucideIcons.ChevronsLeft else LucideIcons.ChevronLeft).glyph(), Fc.Icon, size = 20.dp)
@@ -106,23 +110,23 @@ private fun ToolRow(tools: List<Tool>, back: (() -> Unit)?, deep: Boolean, modif
 }
 
 private fun addTools(ed: EditorController) = listOf(
-    Tool("editor_tool_audio", "Audio", LucideIcons.Music.glyph()) { ed.submenu = Submenu.AddAudio },
-    Tool("editor_tool_text", "Text", LucideIcons.Type.glyph()) { ed.panel = Panel.TextInput(null) },
-    Tool("editor_tool_captions", "Captions", LucideIcons.Captions.glyph(), enabled = ed.duration > 0) { ed.panel = Panel.Captions },
-    Tool("editor_tool_files", "Files", LucideIcons.File.glyph()) { ed.submenu = Submenu.Files },
-    Tool("editor_tool_blank", "Blank", LucideIcons.RectangleHorizontal.glyph()) { ed.addBlank() },
-    Tool("editor_tool_aspect_ratio", "Aspect ratio", LucideIcons.Ratio.glyph()) { ed.panel = Panel.AspectRatio },
+    Tool("editor_tool_audio", R.string.tool_audio, LucideIcons.Music.glyph()) { ed.submenu = Submenu.AddAudio },
+    Tool("editor_tool_text", R.string.tool_text, LucideIcons.Type.glyph()) { ed.panel = Panel.TextInput(null) },
+    Tool("editor_tool_captions", R.string.tool_captions, LucideIcons.Captions.glyph(), enabled = ed.duration > 0) { ed.panel = Panel.Captions },
+    Tool("editor_tool_files", R.string.tool_files, LucideIcons.File.glyph()) { ed.submenu = Submenu.Files },
+    Tool("editor_tool_blank", R.string.tool_blank, LucideIcons.RectangleHorizontal.glyph()) { ed.addBlank() },
+    Tool("editor_tool_aspect_ratio", R.string.tool_aspect_ratio, LucideIcons.Ratio.glyph()) { ed.panel = Panel.AspectRatio },
 )
 
 private fun addAudioTools(ed: EditorController) = listOf(
-    Tool("editor_tool_voiceover", "Voiceover", LucideIcons.Mic.glyph()) { ed.submenu = Submenu.None; ed.panel = Panel.Voiceover },
-    Tool("editor_tool_text_to_speech", "Text to speech", LucideIcons.Speech.glyph()) { ed.submenu = Submenu.None; ed.panel = Panel.Speech(null) },
-    Tool("editor_tool_extract_audio_file", "Extract audio", LucideIcons.AudioLines.glyph()) { ed.extractAudioFromFile() },
+    Tool("editor_tool_voiceover", R.string.tool_voiceover, LucideIcons.Mic.glyph()) { ed.submenu = Submenu.None; ed.panel = Panel.Voiceover },
+    Tool("editor_tool_text_to_speech", R.string.tool_text_to_speech, LucideIcons.Speech.glyph()) { ed.submenu = Submenu.None; ed.panel = Panel.Speech(null) },
+    Tool("editor_tool_extract_audio_file", R.string.tool_extract_audio, LucideIcons.AudioLines.glyph()) { ed.extractAudioFromFile() },
 )
 
 private fun filesTools(ed: EditorController) = listOf(
-    Tool("editor_tool_files_visual", "Images and videos", LucideIcons.Images.glyph()) { ed.addMedia(PickKind.FilesVisual) },
-    Tool("editor_tool_files_audio", "Audio", LucideIcons.Music.glyph()) { ed.addMedia(PickKind.FilesAudio) },
+    Tool("editor_tool_files_visual", R.string.tool_images_videos, LucideIcons.Images.glyph()) { ed.addMedia(PickKind.FilesVisual) },
+    Tool("editor_tool_files_audio", R.string.tool_audio, LucideIcons.Music.glyph()) { ed.addMedia(PickKind.FilesAudio) },
 )
 
 /** Whether the playhead is far enough inside [c] to split it (two frames from each end). */
@@ -132,59 +136,59 @@ private fun canSplit(ed: EditorController, c: ClipInfo): Boolean {
 }
 
 private fun clipTools(ed: EditorController, c: ClipInfo): List<Tool> {
-    val split = Tool("editor_tool_split", "Split", LucideIcons.Scissors.glyph(), enabled = canSplit(ed, c)) { ed.split() }
-    val delete = Tool("editor_tool_delete", "Delete", LucideIcons.Trash2.glyph()) { ed.delete() }
-    val duplicate = Tool("editor_tool_duplicate", "Duplicate", LucideIcons.CopyPlus.glyph()) { ed.duplicate() }
-    val replace = Tool("editor_tool_replace", "Replace", LucideIcons.Replace.glyph()) { ed.replaceSelected() }
+    val split = Tool("editor_tool_split", R.string.tool_split, LucideIcons.Scissors.glyph(), enabled = canSplit(ed, c)) { ed.split() }
+    val delete = Tool("editor_tool_delete", R.string.tool_delete, LucideIcons.Trash2.glyph()) { ed.delete() }
+    val duplicate = Tool("editor_tool_duplicate", R.string.tool_duplicate, LucideIcons.CopyPlus.glyph()) { ed.duplicate() }
+    val replace = Tool("editor_tool_replace", R.string.tool_replace, LucideIcons.Replace.glyph()) { ed.replaceSelected() }
     val onMain = ed.isMain(c.id)
     val picture = listOfNotNull(
-        Tool("editor_tool_filters", "Filters", LucideIcons.SwatchBook.glyph()) { ed.panel = Panel.Filters },
-        if (onMain) Tool("editor_tool_effects", "Effects", LucideIcons.WandSparkles.glyph()) { ed.panel = Panel.Effects } else null,
-        Tool("editor_tool_opacity", "Opacity", Glyphs.Checker) { ed.panel = Panel.Opacity },
+        Tool("editor_tool_filters", R.string.tool_filters, LucideIcons.SwatchBook.glyph()) { ed.panel = Panel.Filters },
+        if (onMain) Tool("editor_tool_effects", R.string.tool_effects, LucideIcons.WandSparkles.glyph()) { ed.panel = Panel.Effects } else null,
+        Tool("editor_tool_opacity", R.string.tool_opacity, Glyphs.Checker) { ed.panel = Panel.Opacity },
         // Lucide names these by their axis line: "flip-vertical-2" has left/right arrows (a mirror)
         // one-tap toggles with no on/off look: the preview shows which way the picture faces
-        Tool("editor_tool_flip_h", "Mirror", LucideIcons.FlipVertical2.glyph()) { ed.toggleMirror() },
-        Tool("editor_tool_flip_v", "Flip", LucideIcons.FlipHorizontal2.glyph()) { ed.toggleFlip() },
+        Tool("editor_tool_flip_h", R.string.tool_mirror, LucideIcons.FlipVertical2.glyph()) { ed.toggleMirror() },
+        Tool("editor_tool_flip_v", R.string.tool_flip, LucideIcons.FlipHorizontal2.glyph()) { ed.toggleFlip() },
     )
     return when (c.kind) {
         ClipKind.MISSING -> listOf(delete, replace)
         ClipKind.TEXT -> listOf(
-            Tool("editor_tool_edit_text", "Edit text", LucideIcons.Keyboard.glyph()) { ed.panel = Panel.TextInput(c.id) },
-            Tool("editor_tool_style", "Style", LucideIcons.Paintbrush.glyph()) { ed.panel = Panel.TextStyle },
+            Tool("editor_tool_edit_text", R.string.tool_edit_text, LucideIcons.Keyboard.glyph()) { ed.panel = Panel.TextInput(c.id) },
+            Tool("editor_tool_style", R.string.tool_style, LucideIcons.Paintbrush.glyph()) { ed.panel = Panel.TextStyle },
             split, delete, duplicate,
         )
         ClipKind.AUDIO -> listOfNotNull(
-            if (c.speech) Tool("editor_tool_edit_speech", "Edit speech", LucideIcons.Speech.glyph()) { ed.panel = Panel.Speech(c.id) } else null,
+            if (c.speech) Tool("editor_tool_edit_speech", R.string.tool_edit_speech, LucideIcons.Speech.glyph()) { ed.panel = Panel.Speech(c.id) } else null,
             split, delete,
-            Tool("editor_tool_volume", "Volume", (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph()) { ed.panel = Panel.Volume },
-            Tool("editor_tool_fade", "Fade", LucideIcons.ChartSpline.glyph()) { ed.panel = Panel.Fade },
+            Tool("editor_tool_volume", R.string.tool_volume, (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph()) { ed.panel = Panel.Volume },
+            Tool("editor_tool_fade", R.string.tool_fade, LucideIcons.ChartSpline.glyph()) { ed.panel = Panel.Fade },
             duplicate, replace,
         )
         ClipKind.BLANK -> listOf(split, delete, duplicate, replace)
         ClipKind.IMAGE -> listOf(split, delete) + picture + listOf(duplicate, replace)
         ClipKind.VIDEO -> listOfNotNull(
             split, delete,
-            Tool("editor_tool_retime_submenu", "Retime", LucideIcons.Timer.glyph()) { ed.submenu = Submenu.Retime },
-            if (c.hasAudio) Tool("editor_tool_audio_submenu", "Audio", (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph()) { ed.submenu = Submenu.ClipAudio } else null,
+        Tool("editor_tool_retime_submenu", R.string.tool_retime, LucideIcons.Timer.glyph()) { ed.submenu = Submenu.Retime },
+        if (c.hasAudio) Tool("editor_tool_audio_submenu", R.string.tool_audio, (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph()) { ed.submenu = Submenu.ClipAudio } else null,
         ) + picture + listOf(duplicate, replace)
     }
 }
 
 private fun captionTools(ed: EditorController, id: ULong) = listOf(
-    Tool("editor_tool_edit_caption", "Edit text", LucideIcons.Keyboard.glyph()) { ed.panel = Panel.TextInput(null, caption = id) },
-    Tool("editor_tool_caption_style", "Style", LucideIcons.Paintbrush.glyph()) { ed.panel = Panel.Captions },
-    Tool("editor_tool_delete_caption", "Delete", LucideIcons.Trash2.glyph()) { ed.deleteCaption(id) },
+            Tool("editor_tool_edit_caption", R.string.tool_edit_text, LucideIcons.Keyboard.glyph()) { ed.panel = Panel.TextInput(null, caption = id) },
+            Tool("editor_tool_caption_style", R.string.tool_style, LucideIcons.Paintbrush.glyph()) { ed.panel = Panel.Captions },
+            Tool("editor_tool_delete_caption", R.string.tool_delete, LucideIcons.Trash2.glyph()) { ed.deleteCaption(id) },
 )
 
 private fun retimeTools(ed: EditorController, c: ClipInfo) = listOf(
-    Tool("editor_tool_speed", "Speed", LucideIcons.Gauge.glyph(), active = ed.panel == Panel.Speed) { ed.panel = Panel.Speed },
-    Tool("editor_tool_freeze", "Freeze", LucideIcons.Snowflake.glyph(), enabled = ed.playhead >= c.start && ed.playhead < c.start + c.duration - ed.frameTicks) { ed.freeze() },
+        Tool("editor_tool_speed", R.string.tool_speed, LucideIcons.Gauge.glyph(), active = ed.panel == Panel.Speed) { ed.panel = Panel.Speed },
+        Tool("editor_tool_freeze", R.string.tool_freeze, LucideIcons.Snowflake.glyph(), enabled = ed.playhead >= c.start && ed.playhead < c.start + c.duration - ed.frameTicks) { ed.freeze() },
 )
 
 private fun clipAudioTools(ed: EditorController, c: ClipInfo) = listOf(
-    Tool("editor_tool_volume", "Volume", (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph(), active = ed.panel == Panel.Volume) { ed.panel = Panel.Volume },
-    Tool("editor_tool_fade", "Fade", LucideIcons.ChartSpline.glyph(), active = ed.panel == Panel.Fade) { ed.panel = Panel.Fade },
-    Tool("editor_tool_extract_audio", "Extract audio", LucideIcons.AudioLines.glyph(), enabled = c.speed < 5.0) { ed.extractAudio() },
+        Tool("editor_tool_volume", R.string.tool_volume, (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph(), active = ed.panel == Panel.Volume) { ed.panel = Panel.Volume },
+        Tool("editor_tool_fade", R.string.tool_fade, LucideIcons.ChartSpline.glyph(), active = ed.panel == Panel.Fade) { ed.panel = Panel.Fade },
+        Tool("editor_tool_extract_audio", R.string.tool_extract_audio, LucideIcons.AudioLines.glyph(), enabled = c.speed < 5.0) { ed.extractAudio() },
 )
 
 @Suppress("unused")

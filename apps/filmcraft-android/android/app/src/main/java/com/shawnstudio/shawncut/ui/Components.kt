@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -68,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.shawnstudio.shawncut.R
 
 /** A round icon button (top bar, transport row): 40 dp target, 24 dp icon. */
 @Composable
@@ -169,6 +171,7 @@ fun ToolPanel(
     tag: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val closeLabel = stringResource(R.string.panel_close)
     val close by rememberUpdatedState(onClose)
     var drag by remember { mutableFloatStateOf(0f) }
     Column(
@@ -193,7 +196,7 @@ fun ToolPanel(
                 Modifier
                     .fillMaxWidth()
                     .height(28.dp)
-                    .semantics { contentDescription = "Close panel" }
+                    .semantics { contentDescription = closeLabel }
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = { close() }),
                 contentAlignment = Alignment.TopCenter,
             ) {
@@ -380,7 +383,7 @@ fun FcDialog(
     confirm: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    dismiss: String = "Cancel",
+    dismiss: String = stringResource(R.string.cancel),
     destructive: Boolean = false,
     confirmEnabled: Boolean = true,
     content: @Composable ColumnScope.() -> Unit = {},

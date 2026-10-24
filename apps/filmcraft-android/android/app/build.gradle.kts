@@ -44,11 +44,11 @@ val appVersionCode: Int = run {
     base * 10 + abi
 }
 
-// The release key, when the build is given one (the release workflow passes it from the repository's
-// secrets). Without one a release build is signed with the debug key: it installs, but it can't
-// update a published release; or, with -Pfilmcraft.unsigned=true (F-Droid's build), not signed at
-// all, so the published APK's signature can be checked against it.
-val releaseKeystore: String? = providers.environmentVariable("FILMCRAFT_KEYSTORE").orNull
+// The release workflow passes the key from repository secrets. F-Droid can explicitly opt out of signing.
+val releaseKeystore: String? = providers.environmentVariable("SHAWNCUT_KEYSTORE").orNull
+val releaseKeystorePassword: String? = providers.environmentVariable("SHAWNCUT_KEYSTORE_PASSWORD").orNull
+val releaseKeyAlias: String? = providers.environmentVariable("SHAWNCUT_KEY_ALIAS").orNull
+val releaseKeyPassword: String? = providers.environmentVariable("SHAWNCUT_KEY_PASSWORD").orNull
 val unsignedRelease: Boolean = providers.gradleProperty("filmcraft.unsigned").orNull == "true"
 
 /** rustup's `cargo` (Android Studio may not see rustup's PATH), else `cargo` from PATH; `CARGO` overrides. */
@@ -223,13 +223,11 @@ android {
     }
 
     signingConfigs {
-        if (releaseKeystore != null) {
-            create("release") {
-                storeFile = file(releaseKeystore)
-                storePassword = providers.environmentVariable("FILMCRAFT_KEYSTORE_PASSWORD").orNull
-                keyAlias = providers.environmentVariable("FILMCRAFT_KEY_ALIAS").orNull
-                keyPassword = providers.environmentVariable("FILMCRAFT_KEY_PASSWORD").orNull
-            }
+        create("release") {
+            storeFile = releaseKeystore?.takeIf { it.isNotBlank() }?.let { file(it) }
+            storePassword = releaseKeystorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
         }
     }
 
@@ -241,7 +239,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = if (unsignedRelease) null else signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            signingConfig = if (unsignedRelease) null else signingConfigs.findByName("release")
             // reproducible builds: no record of the checkout in the APK
             vcsInfo { include = false }
         }

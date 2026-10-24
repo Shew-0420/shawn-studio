@@ -33,12 +33,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.shawnstudio.shawncut.core.ExportQuality
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.engine.toBitmap
 import com.shawnstudio.shawncut.ui.AppViewModel
 import com.shawnstudio.shawncut.ui.ExportPhase
@@ -80,7 +82,7 @@ fun ExportScreen(vm: AppViewModel) {
     Box(Modifier.fillMaxSize().background(Fc.Layer1).testTag("screen_export")) {
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                FcIconButton(LucideIcons.X.glyph(), if (phase is ExportPhase.Running) "Cancel export" else "Close", {
+                FcIconButton(LucideIcons.X.glyph(), stringResource(if (phase is ExportPhase.Running) R.string.export_cancel else R.string.export_close), {
                     when (phase) {
                         is ExportPhase.Running -> vm.cancelExport()
                         is ExportPhase.Done -> vm.finishExport()
@@ -89,9 +91,9 @@ fun ExportScreen(vm: AppViewModel) {
                 }, modifier = Modifier.testTag("export_close_button"))
                 Text(
                     when (phase) {
-                        is ExportPhase.Running -> "Exporting…"
-                        is ExportPhase.Done -> "Ready to share"
-                        else -> "Export"
+                        is ExportPhase.Running -> stringResource(R.string.export_running)
+                        is ExportPhase.Done -> stringResource(R.string.export_ready_to_share)
+                        else -> stringResource(R.string.export_title)
                     },
                     style = FcType.PanelTitle,
                     color = Fc.Title,
@@ -123,23 +125,23 @@ fun ExportScreen(vm: AppViewModel) {
                             Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(12.dp)).background(Fc.Raised).clickable(role = Role.Button) { vm.exportSheet = true }.padding(horizontal = 16.dp).testTag("export_settings_row"),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Export settings", style = FcType.Label, color = Fc.Body, modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.export_settings), style = FcType.Label, color = Fc.Body, modifier = Modifier.weight(1f))
                             GlyphIcon(LucideIcons.ChevronRight.glyph(), Fc.Body, size = 20.dp)
                         }
-                        PrimaryButton("Export video", { vm.startExport() }, tag = "export_button")
+                        PrimaryButton(stringResource(R.string.export_video), { vm.startExport() }, tag = "export_button")
                     }
                     is ExportPhase.Running -> {
                         Text("${Math.round(phase.progress * 100)}%", style = FcType.Header, color = Fc.Title, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                         LinearProgressIndicator(progress = { phase.progress }, color = Fc.Accent, trackColor = Fc.SliderOff, modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape))
-                        Text("Keep Shawn Cut open until your video is ready.", style = FcType.BodySmall, color = Fc.Detail, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        Text(stringResource(R.string.export_keep_open), style = FcType.BodySmall, color = Fc.Detail, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     }
                     is ExportPhase.Done -> {
-                        Text("Saved to your phone's Movies folder.", style = FcType.BodySmall, color = Fc.Detail, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-                        PrimaryButton("Share", { vm.share(phase.uri) }, tag = "export_share_button")
+                        Text(stringResource(R.string.export_saved), style = FcType.BodySmall, color = Fc.Detail, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        PrimaryButton(stringResource(R.string.export_share), { vm.share(phase.uri) }, tag = "export_share_button")
                     }
                     is ExportPhase.Failed -> {
                         Text(phase.message, style = FcType.Body, color = Fc.Negative, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-                        PrimaryButton("Try again", { vm.startExport() })
+                        PrimaryButton(stringResource(R.string.export_try_again), { vm.startExport() })
                     }
                 }
             }
@@ -156,9 +158,9 @@ fun ExportScreen(vm: AppViewModel) {
 private fun SettingsSheet(vm: AppViewModel) {
     val s = vm.exportSettings
     val plan = vm.exportPlan()
-    ToolPanel("Export settings", { vm.exportSheet = false }, tag = "export_settings_sheet") {
+    ToolPanel(stringResource(R.string.export_settings), { vm.exportSheet = false }, tag = "export_settings_sheet") {
         Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
-            Text("Resolution", style = FcType.Label, color = Fc.Body)
+            Text(stringResource(R.string.export_resolution), style = FcType.Label, color = Fc.Body)
             Spacer(Modifier.height(13.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 for ((label, v) in listOf("720" to 720u, "1080" to 1080u, "4K" to 2160u)) {
@@ -166,22 +168,23 @@ private fun SettingsSheet(vm: AppViewModel) {
                 }
             }
             Spacer(Modifier.height(39.dp))
-            Text("Frame rate", style = FcType.Label, color = Fc.Body)
+            Text(stringResource(R.string.export_frame_rate), style = FcType.Label, color = Fc.Body)
             Spacer(Modifier.height(13.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 for (f in listOf(24u, 25u, 30u, 50u, 60u)) SelectChip("$f", s.fps == f, { vm.exportSettings = s.copy(fps = f) }, tag = "export_fps_$f")
             }
             Spacer(Modifier.height(39.dp))
-            Text("Quality", style = FcType.Label, color = Fc.Body)
+            Text(stringResource(R.string.export_quality), style = FcType.Label, color = Fc.Body)
             Spacer(Modifier.height(13.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for ((label, q) in listOf("Low" to ExportQuality.LOW, "Medium" to ExportQuality.MEDIUM, "High" to ExportQuality.HIGH)) {
-                    SelectChip(label, s.quality == q, { vm.exportSettings = s.copy(quality = q) }, tag = "export_quality_$label")
+                for ((label, q) in listOf(R.string.export_quality_low to ExportQuality.LOW, R.string.export_quality_medium to ExportQuality.MEDIUM, R.string.export_quality_high to ExportQuality.HIGH)) {
+                    val labelText = stringResource(label)
+                    SelectChip(labelText, s.quality == q, { vm.exportSettings = s.copy(quality = q) }, tag = "export_quality_$label")
                 }
             }
             Spacer(Modifier.height(27.dp))
             Text(
-                "Estimated file size: " + (plan?.let { "%.2f MB".format(it.estimatedBytes.toDouble() / 1_000_000) } ?: "–"),
+                stringResource(R.string.export_estimated_size, plan?.let { "%.2f MB".format(it.estimatedBytes.toDouble() / 1_000_000) } ?: "–"),
                 style = FcType.Label,
                 color = Fc.Body,
                 textAlign = TextAlign.Center,

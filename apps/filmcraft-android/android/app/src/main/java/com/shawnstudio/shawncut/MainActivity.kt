@@ -37,7 +37,11 @@ class MainActivity : ComponentActivity() {
     private val mic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         val run = micGranted
         micGranted = null
-        if (ok) run?.invoke() else vm.tell("Shawn Cut needs the microphone to record a voice-over. You can allow it in Settings.")
+        if (ok) run?.invoke() else vm.tell(getString(R.string.permission_microphone))
+    }
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,9 +76,9 @@ class MainActivity : ComponentActivity() {
         try {
             block()
         } catch (_: ActivityNotFoundException) {
-            vm.tell("No app on this phone can do that.")
+            vm.tell(getString(R.string.error_no_app_available))
         } catch (_: SecurityException) {
-            vm.tell("Shawn Cut isn't allowed to do that.")
+            vm.tell(getString(R.string.error_not_allowed))
         }
     }
 

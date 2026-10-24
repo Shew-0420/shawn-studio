@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.shawnstudio.shawncut.R
 import com.shawnstudio.shawncut.core.CaptionInfo
 import com.shawnstudio.shawncut.core.CaptionLook
 import com.shawnstudio.shawncut.core.CaptionStatus
@@ -67,6 +68,7 @@ enum class Submenu { None, Retime, ClipAudio, AddAudio, Files }
 /** What the editor needs from the rest of the app. */
 interface EditorHost {
     fun tell(message: String)
+    fun text(id: Int, vararg args: Any): String
     /** Ask the user for media: [kind] picks the picker; [onPicked] gets what they chose. */
     fun pick(kind: PickKind, onPicked: (List<Uri>) -> Unit)
     fun close()
@@ -431,17 +433,17 @@ class EditorController(
     fun importAndAdd(uris: List<Uri>, audio: Boolean, first: Boolean = false) {
         stop()
         scope.launch {
-            busy = "Adding media…"
+        busy = host.text(R.string.busy_adding_media)
             try {
                 val paths = withContext(Dispatchers.IO) { uris.mapNotNull { u -> runCatching { projects.importUri(project, u).absolutePath }.getOrNull() } }
                 if (paths.isEmpty()) {
-                    host.tell("That file can't be added.")
+                    host.tell(host.text(R.string.error_file_cannot_be_added))
                 } else {
                     engine.command {
                         if (audio) addAudio(paths) else addMedia(paths)
                         if (first) forgetHistory()
                     }
-                    if (paths.size < uris.size) host.tell("Some files couldn't be added.")
+                    if (paths.size < uris.size) host.tell(host.text(R.string.error_some_files_cannot_be_added))
                 }
             } catch (e: Exception) {
                 host.tell(e.userMessage)
@@ -457,7 +459,7 @@ class EditorController(
         host.pick(PickKind.ReplaceVisual) { uris ->
             val u = uris.firstOrNull() ?: return@pick
             scope.launch {
-                busy = "Replacing…"
+        busy = host.text(R.string.busy_replacing_media)
                 try {
                     val path = withContext(Dispatchers.IO) { projects.importUri(project, u).absolutePath }
                     engine.command { replace(c.id, path) }
@@ -560,7 +562,7 @@ class EditorController(
     fun saySpeech(clip: ULong?, st: SpeechSettings) {
         stop()
         scope.launch {
-            busy = "Making speech…"
+        busy = host.text(R.string.busy_making_speech)
             try {
                 val dir = project.mediaDir.apply { mkdirs() }.absolutePath
                 engine.command { if (clip == null) addSpeech(st, dir) else editSpeech(clip, st, dir) }
@@ -584,7 +586,7 @@ class EditorController(
     fun makeCaptions(model: String, language: String) {
         if (captionProgress != null) return
         stop()
-        captionProgress = CaptionStatus(0.0, "Getting ready…", false, null, 0u)
+        captionProgress = CaptionStatus(0.0, host.text(R.string.busy_getting_ready), false, null, 0u)
         scope.launch {
             try {
                 val job = engine.command { startCaptions(model, language) }
@@ -596,7 +598,7 @@ class EditorController(
                         when {
                             st.error == "cancelled" -> {}
                             st.error != null -> host.tell(st.error ?: "")
-                            st.captions == 0u -> host.tell("No speech was heard, so there are no captions.")
+                            st.captions == 0u -> host.tell(host.text(R.string.error_no_speech_for_captions))
                         }
                         break
                     }
@@ -708,7 +710,7 @@ class EditorController(
         stop()
         val d = duration
         if (d < frameTicks * 5) {
-            host.tell("Add at least a few frames to the timeline to export.")
+            host.tell(host.text(R.string.error_add_frames_before_export))
             return
         }
         host.export()
