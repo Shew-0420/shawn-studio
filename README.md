@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="assets/app-icon/filmcraft-1024.png" alt="FilmCraft's app icon" width="128">
+  <img src="apps/filmcraft-android/android/app/src/main/branding/shawn_cut_app_icon.png" alt="ShawnCut app icon" width="128">
 </p>
 
-<h1 align="center">FilmCraft for Android</h1>
+<h1 align="center">ShawnCut for Android</h1>
 
 <p align="center">
-  <b>FilmCraft-android is an open-source reimplementation of the Adobe Premiere Android app, created using the same Rust engine, <a href="https://github.com/storytold/filmcraft">FilmCraft</a>, as the desktop app, and built with a Kotlin/Jetpack Compose UI framework.</b><br>
+  <b>ShawnCut for Android is an open-source reimplementation of the Adobe Premiere Android app. It uses the FilmCraft Rust engine and a Kotlin/Jetpack Compose UI.</b><br>
   Many credits to the original maintainers, <a href="https://github.com/storytold">storytold</a>.
 </p>
 
 <p align="center">
-  <a href="https://github.com/artcraft-android/filmcraft-android/releases"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="60"></a>
-  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/artcraft-android/filmcraft-android"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60"></a>
+  <a href="https://github.com/Shew-0420/shawn-studio/releases"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="60"></a>
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Shew-0420/shawn-studio"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60"></a>
 </p>
 
 <p align="center">
@@ -126,7 +126,7 @@
 
 ## Planned features
 
-FilmCraft for Android is in beta.
+ShawnCut for Android is in beta.
 
 | Area | Status |
 |---|---|
@@ -142,7 +142,7 @@ FilmCraft for Android is in beta.
 | Export at 720p, 1080p or 4K, 24 to 60 fps, saved to Movies and shared | ✅ |
 | Upright and sideways layouts | ✅ |
 | Stock music, templates | ⬜ |
-| Generative AI, cloud storage, accounts | 🚫 FilmCraft is a local app |
+| Generative AI, cloud storage, accounts | 🚫 ShawnCut is a local app |
 
 <sub>✅ works today · 🚧 in progress · ⬜ not started · 🚫 not planned</sub>
 
@@ -174,7 +174,7 @@ Build time dependencies:
 
 ## License
 
-[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE), at your option. FilmCraft for Android is not affiliated with Adobe;
+[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE), at your option. ShawnCut for Android is not affiliated with Adobe;
 Premiere is a trademark of Adobe Inc.
 
 <br>
