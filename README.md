@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/filmcraft-android/android/app/src/main/branding/shawn_cut_app_icon.png" alt="ShawnCut app icon" width="128">
+  <img src="apps/shawncut-android/android/app/src/main/branding/shawn_cut_app_icon.png" alt="ShawnCut app icon" width="128">
 </p>
 
 <h1 align="center">ShawnCut for Android</h1>
@@ -153,7 +153,7 @@ ShawnCut for Android is in beta.
 
 * Clone this repository
 * Make sure you have at least 4 GB of free disk space
-* enter `apps/filmcraft-android/android` and run `./gradlew assembleRelease`, or open that folder in Android Studio and press Run.
+* enter `apps/shawncut-android/android` and run `./gradlew assembleRelease`, or open that folder in Android Studio and press Run.
 
 Build time dependencies:
 

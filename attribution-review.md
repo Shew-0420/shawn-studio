@@ -1,0 +1,23 @@
+# FilmCraft Attribution and Metadata Review
+
+Status: inventory only; this is not legal advice. No copyright, license, upstream credit, UI disclosure, or external distribution identity was removed. Legal wording in the app remains unchanged pending owner review.
+
+| Location | Existing reference | Classification / component | Risk and proposed action | Status |
+|---|---|---|---|---|
+| `apps/shawncut-android/android/app/src/main/res/values/strings.xml:32` | “Built on FilmCraft’s Rust engine. MIT OR Apache-2.0.” | UI disclosure / Rust engine attribution | Removing or replacing the engine credit or license attribution could affect disclosure/compliance; retain until the owner approves replacement wording. | Unchanged; requires owner/legal review |
+| `apps/shawncut-android/android/app/src/main/res/values-vi/strings.xml:32` | “Sử dụng engine Rust của FilmCraft. MIT OR Apache-2.0.” | UI disclosure / Rust engine attribution | Same disclosure in Vietnamese; retain pending approved replacement. | Unchanged; requires owner/legal review |
+| `apps/shawncut-android/android/app/src/main/java/com/shawnstudio/shawncut/ui/home/SettingsScreens.kt:208` | `"FilmCraft engine" to "MIT OR Apache-2.0, the FilmCraft contributors"` | UI credit / contributor and license attribution | Do not change contributor or license credit without approval. | Unchanged; requires owner/legal review |
+| `apps/shawncut-android/android/app/src/main/java/com/shawnstudio/shawncut/ui/Theme.kt:16` | `Inter, FilmCraft's UI face (OFL; copied from FilmCraft's assets at build time)` | Asset provenance / Inter font | Identifies source assets and OFL font. Keep provenance; confirm license/credit treatment before any rewrite. | Unchanged; review requested |
+| `apps/shawncut-android/android/app/build.gradle.kts:122` | Copies files from `assets/` shipped with FilmCraft | Build asset provenance / fonts | Do not obscure provenance; the font license is `assets/fonts/OFL-Inter.txt`. | Unchanged; review requested |
+| `apps/shawncut-android/android/app/build.gradle.kts:143` | Lucide icons from FilmCraft's `assets/icons`, with attribution sidecars | Build asset provenance / Lucide icons | Preserve attribution sidecars and ISC license at `assets/icons/LICENSE-lucide.txt`. | Unchanged; review requested |
+| `README.md:8` | ShawnCut Android “uses the FilmCraft Rust engine” | Project disclosure / engine provenance | Kept as a factual upstream-engine disclosure pending approved wording. | Unchanged; review requested |
+| `assets/app-icon/README.md:1,14,24-58` and `assets/app-icon/LICENSE.txt:1-6` | FilmCraft icon artwork, owner/ArtCraft provenance, and MIT OR Apache-2.0 license statement | Global desktop/web icon provenance and license; outside Android implementation scope | Read as requested. Shared icons and attribution are not Android-specific; do not rename or rewrite them in this task. | Unchanged; deferred |
+| `assets/app-icon/*.attribution` and `assets/app-icon/hicolor/**.attribution` | FilmCraft icon title/author plus source/rendering notes | Global icon attribution sidecars; outside Android implementation scope | All 15 sidecars retained: root `filmcraft-1024.png`, `filmcraft-macos-512.png`, `filmcraft-small.svg`, `filmcraft.icns`, `filmcraft.ico`, `filmcraft.svg`; hicolor PNGs at 16, 24, 32, 48, 64, 128, 256, 512 px; and the scalable SVG. These describe assets also used by desktop/web packaging. | Unchanged; deferred |
+| `docs/fdroid/io.github.artcraftandroid.filmcraft.yml:1-43` | Package/recipe identity `io.github.artcraftandroid.filmcraft`, `AutoName: FilmCraft`, upstream URLs and `filmcraft-android-%v.apk` release filename | External distribution metadata / compatibility-sensitive identity | Preserve package/listing ID, upstream URLs and APK release URL. Only the local `subdir` and renamed Gradle property keys are updated for buildability. Confirm any external identity migration separately. | Identity unchanged; build path updated |
+| `README.md:40,80,92,120` | Alt text describes screenshot content containing “Made with FilmCraft” / “FilmCraft edit” | Historical screenshot description, not an active app disclosure | Screenshot assets were not changed; keep alt text accurate to the images. Refresh screenshots and descriptions separately if replacing the images. | Unchanged; deferred |
+
+## Scope notes
+
+- Shared workspace crates such as `filmcraft-engine`, `filmcraft-render`, `filmcraft-project`, `filmcraft-time`, and their Rust APIs remain named as-is; they are shared outside the Android-specific bridge and are not renamed here.
+- The root workspace repository URL and desktop/web icon names remain outside this Android-scoped change.
+- This inventory records observed repository text only and does not determine legal obligations.

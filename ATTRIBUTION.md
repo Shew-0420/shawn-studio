@@ -125,7 +125,7 @@ iconography, images or other Adobe assets; open licences only; every asset attri
 
 Reference frames for the renderer golden tests (`crates/golden`), rendered by FilmCraft itself from
 procedural demo footage (`crates/media/src/generators.rs`); no external media. Regenerate with
-`FILMCRAFT_BLESS=1 cargo test -p filmcraft-golden`.
+`SHAWNCUT_BLESS=1 cargo test -p filmcraft-golden`.
 
 | Asset | Author | Source | Licence |
 |---|---|---|---|

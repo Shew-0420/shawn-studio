@@ -34,7 +34,7 @@ jobs:
       - id: v
         name: Resolve version
         run: |
-          listed="$(sed -n 's/^filmcraft\.version=//p' apps/filmcraft-android/android/gradle.properties)"
+          listed="$(sed -n 's/^shawncut\.version=//p' apps/shawncut-android/android/gradle.properties)"
           if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="$listed"; fi
           if ! printf '%s' "$v" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'; then
             echo "::error::'$v' is not a version like 1.2.3 or 1.2.3-beta"
@@ -42,7 +42,7 @@ jobs:
           fi
           # the tag must be the version gradle.properties names (F-Droid builds from that file)
           if [ "$v" != "$listed" ]; then
-            echo "::error::the tag is v$v but gradle.properties says filmcraft.version=$listed: set it (and filmcraft.versionCode) before tagging"
+            echo "::error::the tag is v$v but gradle.properties says shawncut.version=$listed: set it (and shawncut.versionCode) before tagging"
             exit 1
           fi
           echo "version=$v" >>"$GITHUB_OUTPUT"
@@ -81,16 +81,16 @@ jobs:
           echo "SHAWNCUT_KEYSTORE=$RUNNER_TEMP/release.p12" >>"$GITHUB_ENV"
 
       - name: Build
-        working-directory: apps/filmcraft-android/android
+        working-directory: apps/shawncut-android/android
         env:
           VERSION: ${{ steps.v.outputs.version }}
           SHAWNCUT_KEYSTORE_PASSWORD: ${{ secrets.SHAWNCUT_KEYSTORE_PASSWORD }}
           SHAWNCUT_KEY_ALIAS: ${{ secrets.SHAWNCUT_KEY_ALIAS }}
           SHAWNCUT_KEY_PASSWORD: ${{ secrets.SHAWNCUT_KEY_PASSWORD }}
         run: |
-          ./gradlew assembleRelease "-Pfilmcraft.abis=arm64-v8a" "-Pfilmcraft.version=$VERSION" --no-daemon
+          ./gradlew assembleRelease "-Pshawncut.abis=arm64-v8a" "-Pshawncut.version=$VERSION" --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/dist"
-          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/shawn-cut-$VERSION.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/dist/shawncut-$VERSION.apk"
 
       - name: APK
         run: |
@@ -110,7 +110,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: release-apk
+          name: shawncut-apk
           path: dist/*
           if-no-files-found: error
 
@@ -131,10 +131,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          name: release-apk
+          name: shawncut-apk
           path: dist
 
       - name: Draft the release
         run: |
-          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "$GITHUB_REF_NAME" --notes "## What's Changed" -- dist/*
+          version="${GITHUB_REF_NAME#v}"
+          mv "dist/shawncut-$version.apk" "dist/shawn-cut-$version.apk"
+          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "$GITHUB_REF_NAME" --notes "## What's Changed" -- "dist/shawn-cut-$version.apk"
           echo "Draft **$GITHUB_REF_NAME** is ready: fill in What's Changed and publish it." >>"$GITHUB_STEP_SUMMARY"

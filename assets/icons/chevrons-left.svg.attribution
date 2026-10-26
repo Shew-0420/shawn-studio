@@ -5,4 +5,4 @@ source:       https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, 
 license:      ISC
 license-file: assets/icons/LICENSE-lucide.txt
 added:        2026-10-14 by Claude (agent) for Josh
-notes:        Unmodified. A UI icon of the Android app (apps/filmcraft-android), turned into Compose path data at build time.
+notes:        Unmodified. A UI icon of the Android app (apps/shawncut-android), turned into Compose path data at build time.

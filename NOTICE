@@ -1,4 +1,4 @@
-FilmCraft for Android
+ShawnCut for Android
 Copyright (c) 2026 ArtCraft Team and the FilmCraft contributors.
 
 This repository holds the Android app and the parts of FilmCraft (https://github.com/storytold/filmcraft)
@@ -28,7 +28,7 @@ Downloaded at runtime, never in this repository or the app:
 - Kokoro-82M natural voices, by hexgrad — Apache-2.0, with a CMUdict-format pronunciation dictionary
   (BSD-style, Carnegie Mellon University). Downloaded only when the user asks.
 
-Android app (apps/filmcraft-android):
+Android app (apps/shawncut-android):
 - UniFFI (https://github.com/mozilla/uniffi-rs) — MPL-2.0: the uniffi crate in the library, and the
   generator of the Kotlin bindings (generated at build time, not committed).
 - JNA (https://github.com/java-native-access/jna) — Apache-2.0 (dual-licensed with LGPL-2.1; used

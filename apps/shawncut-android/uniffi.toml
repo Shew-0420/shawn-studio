@@ -1,0 +1,5 @@
+# UniFFI bindings of the `shawncut_android` library.
+
+[bindings.kotlin]
+package_name = "com.shawnstudio.shawncut.core"
+cdylib_name = "shawncut_android"

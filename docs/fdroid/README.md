@@ -1,9 +1,8 @@
 # F-Droid
 
-FilmCraft for Android is built for F-Droid as a **reproducible build**: F-Droid's build server
-builds each tagged release from source and checks it is byte-for-byte the APK on GitHub Releases,
-then ships ours (signed with our key), so people can move between F-Droid and GitHub builds without
-reinstalling.
+The recipe in this directory is a draft, not a verified F-Droid release path. Its metadata ID and
+`Binaries` URL do not currently match this checkout's application ID and workflow release asset
+name, so reproducible-build and in-place-update compatibility are unverified.
 
 `io.github.artcraftandroid.filmcraft.yml` is the recipe for
 [fdroiddata](https://gitlab.com/fdroid/fdroiddata) (`metadata/io.github.artcraftandroid.filmcraft.yml`).
@@ -22,16 +21,20 @@ The store listing (title, descriptions, changelogs, icon, screenshots) is in
 - **Nothing is downloaded during the build** but source. The speech models for captions and the
   natural voices are not in the APK at all: the app downloads them only when the user asks (each
   file pinned to a revision and checked against its SHA-256).
-- **One APK, for 64-bit ARM**, with version code (version code × 10) + 2. F-Droid builds it with
-  `filmcraft.unsigned=true` and compares it with ours.
+- **One APK, for 64-bit ARM.** The recipe requests `shawncut.unsigned=true` and applies version code
+  (source version code × 10) + 2; the binary comparison has not been verified.
 
 Releases are built by the release workflow on Linux, as F-Droid's are.
 
+The Actions artifact is `shawncut-apk`, containing `shawncut-<version>.apk`. The GitHub Release
+keeps the existing public asset name `shawn-cut-<version>.apk`; the recipe's `Binaries` URL still
+expects `filmcraft-android-<version>.apk` and is intentionally unchanged pending owner approval.
+
 ## A release
 
-1. Set `filmcraft.version` and `filmcraft.versionCode` in
-   `apps/filmcraft-android/android/gradle.properties` (the build checks they agree: the code is
-   `((major·100 + minor)·100 + patch)·100 + (pre-release number, or 99)`, e.g. 0.0.2-beta → 201).
+1. Set `shawncut.version` and `shawncut.versionCode` in
+   `apps/shawncut-android/android/gradle.properties` (the build checks they agree: the code is
+   `((major·100 + minor)·100 + patch)·100 + (pre-release number, or 99)`, e.g. 0.0.3-beta → 301).
 2. Add `fastlane/metadata/android/en-US/changelogs/<code>2.txt` (at most 500 characters).
 3. Commit, tag `v<version>` and push the tag; the workflow refuses a tag that isn't the version in
    gradle.properties. Publish the draft release it makes.
